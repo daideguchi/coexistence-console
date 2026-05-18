@@ -1,0 +1,19 @@
+{
+  "name": "super-consolex",
+  "version": "0.0.0",
+  "license": "BSD-3-Clause",
+  "type": "module",
+  "devDependencies": {
+    "@devvit/public-api": "0.12.23",
+    "typescript": "5.7.3"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dashboard:verify": "node ops/verify-dashboard-live.mjs",
+    "fireworks:smoke": "node ops/verify-fireworks-local.mjs",
+    "japanese:verify": "node ops/verify-japanese-live.mjs",
+    "queue:verify": "node ops/verify-queue-live.mjs",
+    "watch": "tsc --watch"
+  },
+  "private": true
+}

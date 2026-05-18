@@ -1,0 +1,53 @@
+# Local env / credentials
+.env
+*.local.env
+.fireworks.active.local.env
+
+# Local billing/support notes. Keep these out of any public submission repo.
+docs/gemini-credit-check-*.md
+docs/google-cloud-credit-appeal-*.md
+ops/verify-google-cloud-credit-route.mjs
+ops/test-ui*.mjs
+
+# Devvit
+.devvit/
+token
+
+# Node
+node_modules/
+dist/
+
+# Playwright
+screenshots/
+videos/
+trace/
+
+# Generated verification artifacts. Force-add only the final submission proofs.
+media/analytics-*
+media/auto-*
+media/current-playtest-headed-*.png
+media/debug-*
+media/fresh-*
+media/manual-*
+media/menu-*
+media/overflow-*
+media/test-*
+media/v020-*
+media/verify-*
+!media/fresh-v028-live-ai-policy-drafts.png
+!media/fresh-v028-live-ai-policy-test.png
+!media/fresh-v028-live-ai-pulse.png
+!media/fresh-v044-dashboard.png
+!media/fresh-v044-dashboard-translation.png
+!media/fresh-v044-dashboard-report.json
+!media/fresh-v044-queue-page.png
+!media/fresh-v044-queue-report.json
+!media/fresh-v047-ja-dashboard.png
+!media/fresh-v047-ja-policy.png
+!media/fresh-v047-ja-queue.png
+!media/fresh-v047-ja-analytics.png
+!media/fresh-v047-ja-report.json
+
+# OS
+.DS_Store
+Thumbs.db
