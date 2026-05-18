@@ -12,7 +12,7 @@ Coexistence Console は、Reddit モデレーターが AI利用ポリシー、�
 
 ## まず見るもの
 
-- 公開レビュー用GitHub: https://github.com/daideguchi/coexistence-console-submission
+- 公開レビュー用GitHub: https://github.com/daideguchi/coexistence-console
 - デモ動画: [media/demo-video-v050-overview.mp4](media/demo-video-v050-overview.mp4)
 - 日本語ダッシュボード: [media/fresh-v047-ja-dashboard.png](media/fresh-v047-ja-dashboard.png)
 - 日本語ポリシーエディタ: [media/fresh-v047-ja-policy.png](media/fresh-v047-ja-policy.png)
@@ -121,7 +121,7 @@ Coexistence Console は、Reddit モデレーターが AI利用ポリシー、�
 - App name: `super-consolex`
 - Devvit app page: https://developers.reddit.com/apps/super-consolex
 - Playtest subreddit: `r/super_consolex_dev`
-- 公開レビュー用GitHub: https://github.com/daideguchi/coexistence-console-submission
+- 公開レビュー用GitHub: https://github.com/daideguchi/coexistence-console
 - 確認済みアップロード版: `0.0.50`
 
 Playtest URL が `403` になる場合は、Redditのログインアカウントに playtest 権限がない、または playtest セッションが有効でない可能性があります。公開レビューでは、このリポジトリ内のデモ動画とスクリーンショットを見てください。ライブ確認する場合は以下を使います。

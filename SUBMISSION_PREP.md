@@ -7,8 +7,8 @@ Status: preparing, not submitted.
 - App: `super-consolex`
 - Playtest subreddit: `r/super_consolex_dev`
 - Verified uploaded app version: `0.0.50`
-- Private GitHub repo: `https://github.com/daideguchi/coexistence-console`
-- Public review repo: `https://github.com/daideguchi/coexistence-console-submission`
+- Private GitHub repo: `https://github.com/daideguchi/coexistence-console-private`
+- Public review repo: `https://github.com/daideguchi/coexistence-console`
 - Preparation commit: `bc5aefe`
 - README is the judge-facing product source of truth.
 - Japanese README is available at `README.ja.md`.

@@ -12,7 +12,7 @@ It is built for the Reddit Mod Tools and Migrated Apps Hackathon, Best New Mod T
 
 Start here if you are judging or manually testing the project.
 
-- Public review repository: https://github.com/daideguchi/coexistence-console-submission
+- Public review repository: https://github.com/daideguchi/coexistence-console
 - Demo video: [media/demo-video-v050-overview.mp4](media/demo-video-v050-overview.mp4)
 - Japanese Dashboard screenshot: [media/fresh-v047-ja-dashboard.png](media/fresh-v047-ja-dashboard.png)
 - Policy Editor Workflow Board: [media/fresh-v047-ja-policy.png](media/fresh-v047-ja-policy.png)
@@ -142,7 +142,7 @@ Unknown disclosure is visibility for moderator review, not proof of deception.
 - App name: `super-consolex`
 - Devvit app page: https://developers.reddit.com/apps/super-consolex
 - Playtest subreddit: `r/super_consolex_dev`
-- Public review repository: https://github.com/daideguchi/coexistence-console-submission
+- Public review repository: https://github.com/daideguchi/coexistence-console
 - Latest uploaded version verified with `npx devvit view`: `0.0.50`
 - Uploaded: May 18, 2026, 5:47:22 PM
 
