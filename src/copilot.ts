@@ -1,4 +1,4 @@
-import type { SubredditPolicy } from './types.js';
+import type { DisclosureStatus, ReviewSignals, SuggestedAction, SubredditPolicy } from './types.js';
 
 export const DEFAULT_CLOUDFLARE_MODEL = '@cf/moonshotai/kimi-k2.6';
 export const DEFAULT_GEMINI_MODEL = 'gemini-3.1-flash-lite';
@@ -62,6 +62,16 @@ type OpenAIResult = {
   }>;
 };
 
+const FORBIDDEN_TRIAGE_TERMS = [
+  /AI detected/i,
+  /confirmed AI/i,
+  /fake human/i,
+  /bot detected/i,
+  /ban recommended/i,
+  /probably AI/i,
+  /\bAI-like\b/i,
+];
+
 export type PolicyDraftPackage = {
   policy: string;
   disclosure: string;
@@ -69,6 +79,13 @@ export type PolicyDraftPackage = {
   sidebar: string;
   checklist: string;
   workflow: string;
+};
+
+export type AITriageSuggestion = {
+  label: string;
+  action: SuggestedAction;
+  reasons: string[];
+  safety: string;
 };
 
 async function callModeratorAI(prompt: string, config: ModeratorAIConfig, maxTokens = 450): Promise<string> {
@@ -338,6 +355,107 @@ function extractSection(output: string, label: string): string {
   return (match?.[1] || '').trim();
 }
 
+function extractAnySection(output: string, label: string, labels: string[]): string {
+  const nextLabels = labels.filter((candidate) => candidate !== label).join('|');
+  const match = output.match(new RegExp(`${label}:\\s*([\\s\\S]*?)(?=\\n(?:${nextLabels}):|$)`, 'i'));
+  return (match?.[1] || '').trim();
+}
+
+function normalizeSuggestedAction(value: string): SuggestedAction {
+  const normalized = value.toLowerCase().replace(/[^a-z]+/g, '_');
+  if (normalized.includes('ask') || normalized.includes('disclosure')) return 'ask_disclosure';
+  if (normalized.includes('label')) return 'apply_label';
+  if (normalized.includes('remove')) return 'remove_with_reason';
+  if (normalized.includes('approve')) return 'approve';
+  if (normalized.includes('review')) return 'mark_reviewed';
+  return 'mark_reviewed';
+}
+
+function includesForbiddenTriageLanguage(value: string): boolean {
+  return FORBIDDEN_TRIAGE_TERMS.some((pattern) => pattern.test(value));
+}
+
+function labelClaimsAIUse(value: string): boolean {
+  return /ai[-\s]?(assisted|generated)|AI(補助|生成)|人工知能(補助|生成)/i.test(value);
+}
+
+function fallbackTriageSuggestion(
+  disclosureStatus: DisclosureStatus,
+  reasons: string[],
+  suggestedActions: SuggestedAction[],
+  languageName: string
+): AITriageSuggestion {
+  let action = suggestedActions[0] || 'mark_reviewed';
+  if (disclosureStatus === 'unknown' && action === 'apply_label') {
+    action = 'ask_disclosure';
+  }
+  const label = (() => {
+    if (action === 'ask_disclosure') return languageName === 'Japanese' ? '開示確認が必要' : 'Needs disclosure';
+    if (action === 'apply_label' && disclosureStatus === 'ai_generated') return languageName === 'Japanese' ? 'AI生成（自己開示）' : 'AI-generated, self-disclosed';
+    if (action === 'apply_label' && disclosureStatus === 'ai_assisted') return languageName === 'Japanese' ? 'AI補助（自己開示）' : 'AI-assisted, self-disclosed';
+    if (action === 'remove_with_reason') return languageName === 'Japanese' ? 'ポリシー確認が必要' : 'Policy review';
+    if (action === 'approve') return languageName === 'Japanese' ? 'ラベル不要' : 'No label needed';
+    return languageName === 'Japanese' ? 'レビュー確認' : 'Policy review';
+  })();
+  return {
+    label,
+    action,
+    reasons: reasons.slice(0, 3).length > 0
+      ? reasons.slice(0, 3)
+      : [languageName === 'Japanese' ? '既存のコミュニティポリシーに基づく確認候補です。' : 'Suggested from the current community policy signals.'],
+    safety: languageName === 'Japanese'
+      ? 'AIは断定や処分をしません。最終判断はモデレーターが行います。'
+      : 'AI does not decide or punish. A moderator makes the final decision.',
+  };
+}
+
+function sanitizeTriageSuggestion(
+  suggestion: AITriageSuggestion,
+  fallback: AITriageSuggestion,
+  disclosureStatus: DisclosureStatus
+): AITriageSuggestion {
+  let label = includesForbiddenTriageLanguage(suggestion.label) ? fallback.label : suggestion.label;
+  let action = suggestion.action;
+  let reasons = suggestion.reasons.filter((reason) => !includesForbiddenTriageLanguage(reason));
+  const safety = includesForbiddenTriageLanguage(suggestion.safety) ? fallback.safety : suggestion.safety;
+
+  if (disclosureStatus === 'unknown' && (labelClaimsAIUse(label) || action === 'apply_label')) {
+    label = fallback.label;
+    action = 'ask_disclosure';
+    reasons = fallback.reasons;
+  }
+
+  return {
+    label,
+    action,
+    reasons: reasons.length > 0 ? reasons : fallback.reasons,
+    safety,
+  };
+}
+
+function parseTriageSuggestion(
+  output: string,
+  fallback: AITriageSuggestion,
+  disclosureStatus: DisclosureStatus
+): AITriageSuggestion {
+  const labels = ['LABEL', 'ACTION', 'WHY', 'SAFETY'];
+  const label = extractAnySection(output, 'LABEL', labels) || fallback.label;
+  const action = normalizeSuggestedAction(extractAnySection(output, 'ACTION', labels) || fallback.action);
+  const why = extractAnySection(output, 'WHY', labels);
+  const reasons = why
+    .split(/\n+/)
+    .map((line) => line.replace(/^[-*•]\s*/, '').trim())
+    .filter(Boolean)
+    .slice(0, 3);
+  const safety = extractAnySection(output, 'SAFETY', labels) || fallback.safety;
+  return sanitizeTriageSuggestion({
+    label: label.replace(/["`]/g, '').trim() || fallback.label,
+    action,
+    reasons: reasons.length > 0 ? reasons : fallback.reasons,
+    safety: safety.trim() || fallback.safety,
+  }, fallback, disclosureStatus);
+}
+
 async function generateStructuredPolicyDraftPackage(
   tone: string,
   disclosureReq: string,
@@ -480,6 +598,52 @@ Return:
 1. One-sentence mood read
 2. One practical moderator next move`;
   return callModeratorAI(prompt, config);
+}
+
+export async function generateAITriageSuggestion(
+  input: {
+    title: string;
+    bodyPreview: string;
+    disclosureStatus: DisclosureStatus;
+    policyStatus: string;
+    reasons: string[];
+    suggestedActions: SuggestedAction[];
+    signals: ReviewSignals;
+    policy: SubredditPolicy;
+  },
+  config: ModeratorAIConfig,
+  languageName = 'English'
+): Promise<AITriageSuggestion> {
+  const fallback = fallbackTriageSuggestion(input.disclosureStatus, input.reasons, input.suggestedActions, languageName);
+  const prompt = `You are an AI Triage Assistant for Reddit moderators.
+Write in ${languageName}.
+Goal: reduce moderator reading time by suggesting a safe label and next action.
+Never claim to detect AI. Never say "AI detected", "confirmed AI", "fake human", "bot detected", "ban recommended", "probably AI", or "AI-like".
+If disclosureStatus is unknown, do not suggest AI-assisted or AI-generated labels. Suggest "Needs disclosure", "Policy review", "Needs source / verification", or "Low-context review".
+If disclosureStatus is self-disclosed ai_assisted or ai_generated, labels may mention self-disclosed AI use.
+Final decision must remain with the moderator.
+
+Post title: ${input.title.slice(0, 240)}
+Post preview: ${input.bodyPreview.slice(0, 1200)}
+Disclosure status: ${input.disclosureStatus}
+Policy status: ${input.policyStatus}
+Rule reasons: ${input.reasons.join(' | ') || 'none'}
+Rule suggested actions: ${input.suggestedActions.join(', ') || 'none'}
+Signals: missingDisclosure=${input.signals.missingDisclosure}; similarToRecentPosts=${input.signals.similarToRecentPosts}; repetitivePattern=${input.signals.repetitivePattern}; lowEffort=${input.signals.lowEffort}
+Community policy: disclosure=${input.policy.disclosureRequirement}; aiGenerated=${input.policy.aiGeneratedAction}; aiAssisted=${input.policy.aiAssistedAction}; unknown=${input.policy.unknownAction}; similarity=${input.policy.similarityAction}; lowContext=${input.policy.lowContextAction}
+
+Return exact sections:
+LABEL: one safe moderator-facing label candidate, 6 words max.
+ACTION: one of ask_disclosure, apply_label, mark_reviewed, remove_with_reason, approve.
+WHY: 2 short bullets. Mention observable moderation signals only.
+SAFETY: one short sentence saying the moderator decides.`;
+
+  try {
+    const output = await callModeratorAI(prompt, config, 360);
+    return parseTriageSuggestion(output, fallback, input.disclosureStatus);
+  } catch {
+    return fallback;
+  }
 }
 
 export async function translateReviewPreview(

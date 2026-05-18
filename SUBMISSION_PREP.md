@@ -6,7 +6,7 @@ Status: preparing, not submitted.
 
 - App: `super-consolex`
 - Playtest subreddit: `r/super_consolex_dev`
-- Verified uploaded app version: `0.0.50`
+- Verified uploaded app version: `0.0.54`
 - Private GitHub repo: `https://github.com/daideguchi/coexistence-console-private`
 - Public review repo: `https://github.com/daideguchi/coexistence-console`
 - Preparation commit: `bc5aefe`
@@ -39,6 +39,7 @@ Use the following files first:
 - `media/fresh-v047-ja-policy.png`
 - `media/fresh-v047-ja-queue.png`
 - `media/fresh-v047-ja-analytics.png`
+- `media/fresh-v050-live-ai-triage.png`
 - `media/fresh-v028-live-ai-policy-drafts.png`
 - `media/fresh-v028-live-ai-pulse.png`
 - `media/demo-preview-v050.gif`
@@ -50,7 +51,7 @@ Use the following files first:
 - If a Reddit URL returns `403`, confirm the browser is logged into the Reddit account with playtest access and that `npx devvit playtest super_consolex_dev` is running.
 - Verify Japanese Dashboard / Policy Editor readability.
 - Click at least one queue action and confirm Analytics changes.
-- Run AI Policy Copilot `Test AI`, `Generate Drafts`, and Analytics `AI Pulse`.
+- Run AI Policy Copilot `Test AI`, `Generate Drafts`, Review Queue `Suggest label`, and Analytics `AI Pulse`.
 - Confirm no app copy says "AI detected", "confirmed AI", "bot detected", or "ban recommended".
 - Confirm the demo story says governance / coexistence visibility, not AI detection.
 

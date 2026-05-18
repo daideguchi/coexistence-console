@@ -10,6 +10,7 @@ import { mkdir } from 'fs/promises';
 const MEDIA_DIR = '/Users/dd/000_AI組織/__hackason/coexistence-console/media';
 const STORAGE_STATE = '/Users/dd/000_AI組織/ops/reddit_storage_state.json';
 const POLICY_URL = 'https://www.reddit.com/r/super_consolex_dev/comments/1td74wd/coexistence_policy_editor/?playtest=super-consolex';
+const QUEUE_URL = 'https://www.reddit.com/r/super_consolex_dev/comments/1tgd2w7/coexistence_review_queue/?playtest=super-consolex';
 const ANALYTICS_URL = 'https://www.reddit.com/r/super_consolex_dev/comments/1td754t/community_analytics_dashboard/?playtest=super-consolex';
 
 async function sleep(ms) {
@@ -159,6 +160,12 @@ async function main() {
     await clickText(page, 'Generate Drafts', 45000);
     await waitForText(page, /Draft Package|Generated\s+(?:Community Policy|Disclosure Request|Removal Reason|Sidebar\/Wiki Text|Review Checklist|Recommended Workflow Settings):/i, 120000);
     await screenshot(page, 'fresh-v028-live-ai-policy-drafts.png');
+
+    await gotoPage(page, QUEUE_URL, 90000);
+    await waitForText(page, /Coexistence Queue|Review Queue|AI Triage Assistant/, 60000);
+    await clickText(page, 'Suggest label', 45000);
+    await waitForText(page, /Suggested label|推奨ラベル|Etiqueta sugerida|Label suggere/i, 90000);
+    await screenshot(page, 'fresh-v050-live-ai-triage.png');
 
     await gotoPage(page, ANALYTICS_URL, 90000);
     await waitForText(page, /Community Pulse|Coexistence Visibility/, 45000);

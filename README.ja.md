@@ -17,6 +17,7 @@ Coexistence Console は、Reddit モデレーターが AI利用ポリシー、�
 - 日本語ダッシュボード: [media/fresh-v047-ja-dashboard.png](media/fresh-v047-ja-dashboard.png)
 - 日本語ポリシーエディタ: [media/fresh-v047-ja-policy.png](media/fresh-v047-ja-policy.png)
 - 実Geminiのポリシー下書き: [media/fresh-v028-live-ai-policy-drafts.png](media/fresh-v028-live-ai-policy-drafts.png)
+- AIトリアージ支援: [media/fresh-v050-live-ai-triage.png](media/fresh-v050-live-ai-triage.png)
 - 提出前チェックリスト: [SUBMISSION_PREP.md](SUBMISSION_PREP.md)
 
 ## デモプレビュー
@@ -48,18 +49,28 @@ Coexistence Console は、Reddit モデレーターが AI利用ポリシー、�
       <img src="media/fresh-v044-queue-page.png" alt="レビューキュー" width="420">
     </td>
     <td width="50%">
-      <strong>実Geminiのポリシー下書き</strong><br>
-      <img src="media/fresh-v028-live-ai-policy-drafts.png" alt="実Geminiのポリシー下書き" width="420">
+      <strong>AIトリアージ支援</strong><br>
+      <img src="media/fresh-v050-live-ai-triage.png" alt="AIトリアージ支援" width="420">
     </td>
   </tr>
   <tr>
     <td width="50%">
+      <strong>実Geminiのポリシー下書き</strong><br>
+      <img src="media/fresh-v028-live-ai-policy-drafts.png" alt="実Geminiのポリシー下書き" width="420">
+    </td>
+    <td width="50%">
       <strong>分析</strong><br>
       <img src="media/fresh-v047-ja-analytics.png" alt="分析" width="420">
     </td>
+  </tr>
+  <tr>
     <td width="50%">
       <strong>AI Pulse</strong><br>
       <img src="media/fresh-v028-live-ai-pulse.png" alt="AI Pulse" width="420">
+    </td>
+    <td width="50%">
+      <strong>日本語レビューキュー</strong><br>
+      <img src="media/fresh-v047-ja-queue.png" alt="日本語レビューキュー" width="420">
     </td>
   </tr>
 </table>
@@ -101,10 +112,13 @@ Coexistence Console は、Reddit モデレーターが AI利用ポリシー、�
 3. Rule-Based Review Queue  
    実際の subreddit 投稿を、決定論的なルールでレビューキューに入れます。AIスコアではなく、説明可能な理由を表示します。
 
-4. Moderator Actions  
+4. AIトリアージ支援
+   Gemini が安全なラベル候補、観測可能な理由2つ、次に取るべきモデレーター操作を提案します。AI判定ではなく提案だけで、最終判断は必ずモデレーターです。開示不明の投稿をAI補助・AI生成と決めつけることはありません。
+
+5. Moderator Actions
    Approve / Apply label / Ask disclosure / Mark reviewed / Remove with reason を実投稿に対して実行し、ActionLog に保存します。
 
-5. Analytics  
+6. Analytics
    scanned posts、queue items、labels applied、disclosure requests、removals、approvals、reviewed posts、estimated time saved を ActionLog から表示します。
 
 ## 言語対応
@@ -122,7 +136,7 @@ Coexistence Console は、Reddit モデレーターが AI利用ポリシー、�
 - Devvit app page: https://developers.reddit.com/apps/super-consolex
 - Playtest subreddit: `r/super_consolex_dev`
 - 公開レビュー用GitHub: https://github.com/daideguchi/coexistence-console
-- 確認済みアップロード版: `0.0.50`
+- 確認済みアップロード版: `0.0.54`
 
 Playtest URL が `403` になる場合は、Redditのログインアカウントに playtest 権限がない、または playtest セッションが有効でない可能性があります。公開レビューでは、このリポジトリ内のデモ動画とスクリーンショットを見てください。ライブ確認する場合は以下を使います。
 
@@ -142,7 +156,7 @@ npm run japanese:verify
 node ops/verify-ai-live.mjs
 ```
 
-最新確認では、build、Dashboard、Queue、日本語UI、Gemini AI機能の検証が通っています。
+最新確認では、build、Dashboard、Queue、日本語UI、Gemini AI機能（Policy Copilot / AIトリアージ / AI Pulse）の検証が通っています。
 
 ## デモギャラリー
 
@@ -163,6 +177,10 @@ node ops/verify-ai-live.mjs
 レビューキュー:
 
 ![レビューキュー](media/fresh-v044-queue-page.png)
+
+AIトリアージ支援:
+
+![AIトリアージ支援](media/fresh-v050-live-ai-triage.png)
 
 実Geminiの下書き:
 

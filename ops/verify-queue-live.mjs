@@ -72,7 +72,7 @@ async function main() {
 
   const report = {
     url: SUBREDDIT_URL,
-    versionExpectation: 'v0.0.50 playtest',
+    versionExpectation: 'v0.0.54 playtest',
     foundQueuePost: false,
     queuePostUrl: '',
     hasQueueUi: false,

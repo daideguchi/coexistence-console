@@ -7,6 +7,7 @@ import type {
   RecentAction,
   ReviewItem,
   ReviewSignals,
+  SuggestedAction,
   SubredditPolicy,
 } from './types.js';
 import { PRESETS, ACTION_ICONS, DISCLOSURE_LABELS } from './types.js';
@@ -30,7 +31,9 @@ import {
 	  generateConnectionCheck,
 	  generatePolicyDraftPackage,
 	  generateCommunityPulseSummary,
+	  generateAITriageSuggestion,
 	  translateReviewPreview,
+	  type AITriageSuggestion,
 	} from './copilot.js';
 
 Devvit.configure({
@@ -1535,6 +1538,10 @@ function renderReviewQueue(context: Devvit.Context): JSX.Element {
 	    const [translationSourceId, setTranslationSourceId] = useState<string>('');
 	    const [translationLoading, setTranslationLoading] = useState<boolean>(false);
 	    const [translationError, setTranslationError] = useState<string>('');
+	    const [triageSuggestion, setTriageSuggestion] = useState<AITriageSuggestion | null>(null);
+	    const [triageSourceId, setTriageSourceId] = useState<string>('');
+	    const [triageLoading, setTriageLoading] = useState<boolean>(false);
+	    const [triageError, setTriageError] = useState<string>('');
 	    const [languageOverride, setLanguageOverride] = useState<SupportedLanguage | null>(null);
 
     const selected = (allItems || []).find((i) => i.id === selectedId) || (allItems || [])[0];
@@ -1635,6 +1642,218 @@ function renderReviewQueue(context: Devvit.Context): JSX.Element {
 	      } finally {
 	        setTranslationLoading(false);
 	      }
+	    }
+
+	    async function generateSelectedTriage(): Promise<void> {
+	      if (!selected) return;
+	      if (!aiConfig) {
+	        context.ui.showToast(t('triage.missingConfig', lang));
+	        return;
+	      }
+	      if (triageLoading) return;
+	      setTriageLoading(true);
+	      setTriageError('');
+	      try {
+	        const policy = await getPolicy(context, subredditId) || applyPreset(subredditId, 'balanced');
+	        const suggestion = await generateAITriageSuggestion({
+	          title: selected.title,
+	          bodyPreview: selected.bodyPreview,
+	          disclosureStatus: selected.disclosureStatus,
+	          policyStatus: selected.policyStatus,
+	          reasons: selected.reasons || [],
+	          suggestedActions: selected.suggestedActions || [],
+	          signals: selected.signals,
+	          policy,
+	        }, aiConfig, languageNameForAI(lang));
+	        setTriageSuggestion(suggestion);
+	        setTriageSourceId(selected.id);
+	      } catch {
+	        setTriageError(t('triage.failed', lang));
+	        context.ui.showToast(t('triage.failed', lang));
+	      } finally {
+	        setTriageLoading(false);
+	      }
+	    }
+
+	    function triageActionLabel(action: SuggestedAction): string {
+	      if (action === 'apply_label') return t('actions.label', lang);
+	      if (action === 'ask_disclosure') return t('actions.askDisclosure', lang);
+	      if (action === 'remove_with_reason') return t('actions.remove', lang);
+	      if (action === 'approve') return t('actions.approve', lang);
+	      return t('actions.markReviewed', lang);
+	    }
+
+	    async function approveSelected(): Promise<void> {
+	      if (!selected) return;
+	      try {
+	        const post = await context.reddit.getPostById(selected.postId);
+	        await post.approve();
+	        selected.status = 'approved';
+	        selected.modDecision = {
+	          action: 'approved',
+	          modUsername: context.username || 'mod',
+	          decidedAt: Date.now(),
+	        };
+	        await context.redis.set(REVIEW_KEY(subredditId, selected.postId), JSON.stringify(selected));
+	        await incrementMetrics(context, subredditId, 'approvalsPerformed', 1);
+	        await incrementMetrics(context, subredditId, 'estimatedSecondsSaved', ONE_CLICK_ACTION_SECONDS);
+	        await incrementDaily(context, subredditId, 'approvalsPerformed');
+	        await recordAction(context, subredditId, {
+	          type: 'approved',
+	          postTitle: selected.title,
+	          postId: selected.postId,
+	          modUsername: context.username || 'mod',
+	          policyStatus: selected.policyStatus,
+	          disclosureStatus: selected.disclosureStatus,
+	          reason: triageSourceId === selected.id && triageSuggestion ? `AI Triage accepted: ${triageSuggestion.label}` : undefined,
+	        });
+	        context.ui.showToast(t('toast.approved', lang));
+	      } catch {
+	        context.ui.showToast(t('toast.errApprove', lang));
+	      }
+	    }
+
+	    async function applySelectedLabel(): Promise<void> {
+	      if (!selected) return;
+	      try {
+	        const subreddit = await context.reddit.getCurrentSubreddit();
+	        const isGenerated = selected.disclosureStatus === 'ai_generated';
+	        const labelText = isGenerated ? 'AI-Generated' : 'AI-Assisted';
+	        const labelColor = isGenerated ? '#FF4500' : '#FFB000';
+	        await context.reddit.setPostFlair({
+	          subredditName: subreddit.name,
+	          postId: selected.postId,
+	          text: labelText,
+	          backgroundColor: labelColor,
+	          textColor: 'dark',
+	        });
+	        selected.status = 'labeled';
+	        selected.modDecision = {
+	          action: `labeled ${labelText.toLowerCase()}`,
+	          modUsername: context.username || 'mod',
+	          decidedAt: Date.now(),
+	        };
+	        await context.redis.set(REVIEW_KEY(subredditId, selected.postId), JSON.stringify(selected));
+	        await incrementMetrics(context, subredditId, 'labelsApplied', 1);
+	        await incrementMetrics(context, subredditId, 'estimatedSecondsSaved', ONE_CLICK_ACTION_SECONDS);
+	        await incrementDaily(context, subredditId, 'labelsApplied');
+	        await recordAction(context, subredditId, {
+	          type: 'labeled',
+	          description: `Post labeled as ${labelText}`,
+	          postTitle: selected.title,
+	          postId: selected.postId,
+	          modUsername: context.username || 'mod',
+	          policyStatus: selected.policyStatus,
+	          disclosureStatus: selected.disclosureStatus,
+	          reason: triageSourceId === selected.id && triageSuggestion ? `AI Triage accepted: ${triageSuggestion.label}` : undefined,
+	        });
+	        context.ui.showToast(t('toast.labeled', lang));
+	      } catch {
+	        context.ui.showToast(t('toast.errLabel', lang));
+	      }
+	    }
+
+	    async function askSelectedDisclosure(): Promise<void> {
+	      if (!selected) return;
+	      try {
+	        const post = await context.reddit.getPostById(selected.postId);
+	        const policy = await getPolicy(context, subredditId);
+	        const commentText = policy?.disclosureRequestTemplate || generateDisclosureRequest(policy || applyPreset(subredditId, 'balanced'));
+	        await post.addComment({ text: commentText });
+	        selected.status = 'asked_disclosure';
+	        selected.modDecision = {
+	          action: 'asked for disclosure',
+	          modUsername: context.username || 'mod',
+	          decidedAt: Date.now(),
+	        };
+	        await context.redis.set(REVIEW_KEY(subredditId, selected.postId), JSON.stringify(selected));
+	        await incrementMetrics(context, subredditId, 'disclosureRequestsSent', 1);
+	        await incrementMetrics(context, subredditId, 'estimatedSecondsSaved', ONE_CLICK_ACTION_SECONDS);
+	        await incrementDaily(context, subredditId, 'disclosureRequestsSent');
+	        await recordAction(context, subredditId, {
+	          type: 'asked_disclosure',
+	          postTitle: selected.title,
+	          postId: selected.postId,
+	          modUsername: context.username || 'mod',
+	          policyStatus: selected.policyStatus,
+	          disclosureStatus: selected.disclosureStatus,
+	          reason: triageSourceId === selected.id && triageSuggestion ? `AI Triage accepted: ${triageSuggestion.label}` : undefined,
+	        });
+	        context.ui.showToast(t('toast.askDisclosure', lang));
+	      } catch {
+	        context.ui.showToast(t('toast.errAskDisclosure', lang));
+	      }
+	    }
+
+	    async function markSelectedReviewed(): Promise<void> {
+	      if (!selected) return;
+	      try {
+	        selected.status = 'reviewed';
+	        selected.modDecision = {
+	          action: 'marked reviewed',
+	          modUsername: context.username || 'mod',
+	          decidedAt: Date.now(),
+	        };
+	        await context.redis.set(REVIEW_KEY(subredditId, selected.postId), JSON.stringify(selected));
+	        await incrementMetrics(context, subredditId, 'reviewedPosts', 1);
+	        await incrementMetrics(context, subredditId, 'estimatedSecondsSaved', ONE_CLICK_ACTION_SECONDS);
+	        await incrementDaily(context, subredditId, 'reviewedPosts');
+	        await recordAction(context, subredditId, {
+	          type: 'reviewed',
+	          postTitle: selected.title,
+	          postId: selected.postId,
+	          modUsername: context.username || 'mod',
+	          policyStatus: selected.policyStatus,
+	          disclosureStatus: selected.disclosureStatus,
+	          reason: triageSourceId === selected.id && triageSuggestion ? `AI Triage accepted: ${triageSuggestion.label}` : undefined,
+	        });
+	        context.ui.showToast(t('toast.reviewed', lang));
+	      } catch {
+	        context.ui.showToast(t('toast.errReviewed', lang));
+	      }
+	    }
+
+	    async function removeSelectedWithReason(): Promise<void> {
+	      if (!selected) return;
+	      try {
+	        const post = await context.reddit.getPostById(selected.postId);
+	        await post.remove(false);
+	        const policy = await getPolicy(context, subredditId);
+	        const reason = selected.reasons[0] || 'default';
+	        const commentText = policy?.removalReasonTemplate || generateRemovalReason(policy || applyPreset(subredditId, 'balanced'), reason);
+	        await post.addComment({ text: commentText });
+	        selected.status = 'removed';
+	        selected.modDecision = {
+	          action: 'removed with reason',
+	          modUsername: context.username || 'mod',
+	          decidedAt: Date.now(),
+	        };
+	        await context.redis.set(REVIEW_KEY(subredditId, selected.postId), JSON.stringify(selected));
+	        await incrementMetrics(context, subredditId, 'removalsPerformed', 1);
+	        await incrementMetrics(context, subredditId, 'estimatedSecondsSaved', ONE_CLICK_ACTION_SECONDS);
+	        await incrementDaily(context, subredditId, 'removalsPerformed');
+	        await recordAction(context, subredditId, {
+	          type: 'removed',
+	          postTitle: selected.title,
+	          postId: selected.postId,
+	          reason: triageSourceId === selected.id && triageSuggestion ? `AI Triage accepted: ${triageSuggestion.label}; ${reason}` : reason,
+	          modUsername: context.username || 'mod',
+	          policyStatus: selected.policyStatus,
+	          disclosureStatus: selected.disclosureStatus,
+	        });
+	        context.ui.showToast(t('toast.removed', lang));
+	      } catch {
+	        context.ui.showToast(t('toast.errRemove', lang));
+	      }
+	    }
+
+	    async function runTriageAction(action: SuggestedAction): Promise<void> {
+	      if (action === 'apply_label' && selected?.disclosureStatus === 'unknown') return askSelectedDisclosure();
+	      if (action === 'apply_label') return applySelectedLabel();
+	      if (action === 'ask_disclosure') return askSelectedDisclosure();
+	      if (action === 'remove_with_reason') return removeSelectedWithReason();
+	      if (action === 'approve') return approveSelected();
+	      return markSelectedReviewed();
 	    }
 
     return (
@@ -1738,6 +1957,44 @@ function renderReviewQueue(context: Devvit.Context): JSX.Element {
 	                <text size="xsmall" color={COLORS.muted}>{t('queue.translationSafety', lang)}</text>
 	              </vstack>
 	            )}
+
+	            <vstack backgroundColor={COLORS.surfaceMuted} border="thin" borderColor={COLORS.border} cornerRadius="small" padding="small" gap="small">
+	              <hstack alignment="middle start" gap="small">
+	                <vstack grow gap="none">
+	                  <text size="small" weight="bold" color={COLORS.ink}>{t('triage.title', lang)}</text>
+	                  <text size="xsmall" color={COLORS.muted} wrap>{t('triage.subtitle', lang)}</text>
+	                </vstack>
+	                <button appearance="bordered" size="small" onPress={generateSelectedTriage}>
+	                  {triageLoading ? t('triage.loading', lang) : t('triage.button', lang)}
+	                </button>
+	              </hstack>
+	              {triageError && <text size="xsmall" color={COLORS.caution}>{triageError}</text>}
+	              {triageSuggestion && triageSourceId === selected.id ? (
+	                <vstack backgroundColor={COLORS.white} border="thin" borderColor={COLORS.border} cornerRadius="small" padding="small" gap="small">
+		                  <hstack alignment="middle start" gap="small">
+		                    <vstack grow gap="none">
+		                      <text size="xsmall" color={COLORS.muted}>{t('triage.suggestedLabel', lang)}</text>
+		                      <text size="medium" weight="bold" color={COLORS.primary} wrap>{triageSuggestion.label}</text>
+		                    </vstack>
+		                    <vstack backgroundColor={COLORS.primarySoft} cornerRadius="small" padding="xsmall">
+		                      <text size="xsmall" weight="bold" color={COLORS.primary}>{triageActionLabel(triageSuggestion.action)}</text>
+		                    </vstack>
+		                    <button appearance="primary" size="small" onPress={() => runTriageAction(triageSuggestion.action)}>
+		                      {t('triage.apply', lang)}
+		                    </button>
+		                  </hstack>
+		                  <vstack gap="small">
+		                    <text size="xsmall" weight="bold" color={COLORS.ink}>{t('triage.why', lang)}</text>
+		                    {triageSuggestion.reasons.slice(0, 2).map((reason, idx) => (
+		                      <text key={`triage-reason-${idx}`} size="xsmall" color={COLORS.muted} wrap>• {reason}</text>
+		                    ))}
+		                  </vstack>
+		                  <text size="xsmall" color={COLORS.muted} wrap>{triageSuggestion.safety || t('triage.safety', lang)}</text>
+		                </vstack>
+	              ) : (
+	                <text size="xsmall" color={COLORS.muted} wrap>{t('triage.empty', lang)}</text>
+	              )}
+	            </vstack>
 
 	            <vstack grow />
 
