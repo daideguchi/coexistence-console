@@ -19,6 +19,51 @@ Start here if you are judging or manually testing the project.
 - Live Gemini policy drafts: [media/fresh-v028-live-ai-policy-drafts.png](media/fresh-v028-live-ai-policy-drafts.png)
 - Submission prep checklist: [SUBMISSION_PREP.md](SUBMISSION_PREP.md)
 
+## Demo Preview
+
+Click the animated preview to open the current demo video. This video is a temporary submission-prep cut and can be replaced with the final walkthrough later.
+
+<p>
+  <a href="media/demo-video-v050-overview.mp4">
+    <img src="media/demo-preview-v050.gif" alt="Coexistence Console demo video preview" width="900">
+  </a>
+</p>
+
+## Screenshot Gallery
+
+<table>
+  <tr>
+    <td width="50%">
+      <strong>Japanese Dashboard</strong><br>
+      <img src="media/fresh-v047-ja-dashboard.png" alt="Japanese Dashboard" width="420">
+    </td>
+    <td width="50%">
+      <strong>Policy Editor Workflow Board</strong><br>
+      <img src="media/fresh-v047-ja-policy.png" alt="Policy Editor Workflow Board" width="420">
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <strong>Review Queue</strong><br>
+      <img src="media/fresh-v044-queue-page.png" alt="Review Queue" width="420">
+    </td>
+    <td width="50%">
+      <strong>Live Gemini Policy Drafts</strong><br>
+      <img src="media/fresh-v028-live-ai-policy-drafts.png" alt="Live Gemini Policy Drafts" width="420">
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <strong>Analytics</strong><br>
+      <img src="media/fresh-v047-ja-analytics.png" alt="Analytics" width="420">
+    </td>
+    <td width="50%">
+      <strong>AI Pulse</strong><br>
+      <img src="media/fresh-v028-live-ai-pulse.png" alt="AI Pulse" width="420">
+    </td>
+  </tr>
+</table>
+
 Core verification commands:
 
 ```bash
@@ -142,6 +187,8 @@ Version `0.0.50` rebuilt the experience around moderator clarity.
 
 Use these current proof files from `media/`:
 
+- `media/demo-preview-v050.gif` - Inline README preview for the current demo video.
+- `media/demo-video-v050-overview.mp4` - Current temporary overview video. Replace later with the final walkthrough if needed.
 - `media/fresh-v044-dashboard.png` - English Dashboard with Next-Step Hero, KPI row, Queue Workbench, and locator.
 - `media/fresh-v044-dashboard-translation.png` - Translate Preview from the Dashboard workbench.
 - `media/fresh-v044-queue-page.png` - English Review Queue with locator, count badge, and action row.
@@ -155,6 +202,8 @@ Use these current proof files from `media/`:
 ### Demo Gallery
 
 Latest overview video:
+
+[media/demo-preview-v050.gif](media/demo-preview-v050.gif)
 
 [media/demo-video-v050-overview.mp4](media/demo-video-v050-overview.mp4)
 

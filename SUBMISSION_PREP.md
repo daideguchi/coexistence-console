@@ -41,6 +41,7 @@ Use the following files first:
 - `media/fresh-v047-ja-analytics.png`
 - `media/fresh-v028-live-ai-policy-drafts.png`
 - `media/fresh-v028-live-ai-pulse.png`
+- `media/demo-preview-v050.gif`
 - `media/demo-video-v050-overview.mp4`
 
 ## Human QA Before Devpost Submit

@@ -19,6 +19,51 @@ Coexistence Console は、Reddit モデレーターが AI利用ポリシー、�
 - 実Geminiのポリシー下書き: [media/fresh-v028-live-ai-policy-drafts.png](media/fresh-v028-live-ai-policy-drafts.png)
 - 提出前チェックリスト: [SUBMISSION_PREP.md](SUBMISSION_PREP.md)
 
+## デモプレビュー
+
+下のアニメーションをクリックすると、現在のデモ動画を開けます。これは提出準備用の仮動画なので、最後のウォークスルー動画に後で差し替えて問題ありません。
+
+<p>
+  <a href="media/demo-video-v050-overview.mp4">
+    <img src="media/demo-preview-v050.gif" alt="Coexistence Console デモ動画プレビュー" width="900">
+  </a>
+</p>
+
+## スクリーンショット
+
+<table>
+  <tr>
+    <td width="50%">
+      <strong>日本語ダッシュボード</strong><br>
+      <img src="media/fresh-v047-ja-dashboard.png" alt="日本語ダッシュボード" width="420">
+    </td>
+    <td width="50%">
+      <strong>ポリシーエディタ</strong><br>
+      <img src="media/fresh-v047-ja-policy.png" alt="ポリシーエディタ" width="420">
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <strong>レビューキュー</strong><br>
+      <img src="media/fresh-v044-queue-page.png" alt="レビューキュー" width="420">
+    </td>
+    <td width="50%">
+      <strong>実Geminiのポリシー下書き</strong><br>
+      <img src="media/fresh-v028-live-ai-policy-drafts.png" alt="実Geminiのポリシー下書き" width="420">
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <strong>分析</strong><br>
+      <img src="media/fresh-v047-ja-analytics.png" alt="分析" width="420">
+    </td>
+    <td width="50%">
+      <strong>AI Pulse</strong><br>
+      <img src="media/fresh-v028-live-ai-pulse.png" alt="AI Pulse" width="420">
+    </td>
+  </tr>
+</table>
+
 ## これはAI検出器ではない
 
 このプロダクトは「この投稿はAIだ」と断定するツールではありません。
@@ -102,6 +147,8 @@ node ops/verify-ai-live.mjs
 ## デモギャラリー
 
 最新概要動画:
+
+[media/demo-preview-v050.gif](media/demo-preview-v050.gif)
 
 [media/demo-video-v050-overview.mp4](media/demo-video-v050-overview.mp4)
 
