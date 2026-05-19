@@ -22,7 +22,7 @@ Start here if you are judging or manually testing the project.
 
 ## Demo Preview
 
-Click the animated preview to open the current demo video. This video is a temporary submission-prep cut and can be replaced with the final walkthrough later.
+Click the animated preview to open the current overview video.
 
 <p>
   <a href="media/demo-video-v050-overview.mp4">
@@ -92,20 +92,6 @@ node ops/verify-ai-live.mjs
 AI moderation is not just a detection problem. It is a governance problem.
 
 Coexistence Console helps subreddit moderators turn AI-content uncertainty into clear community policy, explainable review workflows, transparent moderator actions, and ActionLog-based analytics while keeping humans in control.
-
-## Why This Exists
-
-Reddit is valuable because humans can talk freely, argue, ask for help, share expertise, and build community culture. AI is now entering that same space. Some users will disclose AI assistance, some will not, and many posts will be ambiguous.
-
-The moderator problem is not "prove whether this was written by AI." That is brittle and unfair. The real problem is:
-
-- What does this community allow?
-- When should AI use be disclosed?
-- Which posts need labels, review, or removal?
-- How do moderators explain decisions consistently?
-- How do communities preserve useful AI-assisted contributions without letting low-context generated content degrade trust?
-
-Coexistence Console treats AI participation as a visibility and governance challenge, not an accusation workflow.
 
 ## What It Is Not
 
@@ -203,7 +189,7 @@ Version `0.0.54` includes the award-grade UX redesign plus AI-assisted queue tri
 Use these current proof files from `media/`:
 
 - `media/demo-preview-v050.gif` - Inline README preview for the current demo video.
-- `media/demo-video-v050-overview.mp4` - Current temporary overview video. Replace later with the final walkthrough if needed.
+- `media/demo-video-v050-overview.mp4` - Current overview video.
 - `media/fresh-v044-dashboard.png` - English Dashboard with Next-Step Hero, KPI row, Queue Workbench, and locator.
 - `media/fresh-v044-dashboard-translation.png` - Translate Preview from the Dashboard workbench.
 - `media/fresh-v044-queue-page.png` - English Review Queue with locator, count badge, and action row.
@@ -420,3 +406,11 @@ Short Devpost version:
 Longer version:
 
 > Coexistence Console is an AI-assisted governance layer for Reddit moderators. As AI-assisted and AI-generated content becomes normal, moderators need more than unreliable AI detection. They need clear community policies, disclosure norms, explainable review workflows, consistent moderator actions, and analytics that show how moderation work is being handled. Coexistence Console uses AI where it is safest and most useful: helping moderators draft AI-content policies, disclosure rules, removal reasons, and user-facing explanations. Enforcement remains deterministic, transparent, and moderator-controlled.
+
+## Story Note
+
+Reddit is valuable because humans can talk freely, argue, ask for help, share expertise, and build community culture. AI is now entering that same space. Some users will disclose AI assistance, some will not, and many posts will be ambiguous.
+
+The moderator problem is not proving whether each post was written by AI. That is brittle and unfair. The real problem is deciding what the community allows, when disclosure matters, which posts need labels or review, how moderators explain decisions consistently, and how useful AI-assisted contributions can coexist with human community culture.
+
+Coexistence Console treats AI participation as a visibility and governance challenge, not an accusation workflow.

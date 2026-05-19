@@ -1,6 +1,6 @@
 # Submission Prep - Coexistence Console
 
-Status: preparing, not submitted.
+Status: final QA release candidate. Devpost submission is the final human action.
 
 ## Current State
 
@@ -9,7 +9,7 @@ Status: preparing, not submitted.
 - Verified uploaded app version: `0.0.54`
 - Private GitHub repo: `https://github.com/daideguchi/coexistence-console-private`
 - Public review repo: `https://github.com/daideguchi/coexistence-console`
-- Preparation commit: `bc5aefe`
+- Latest private preparation commit: see `git log -1 --oneline` in this repo.
 - README is the judge-facing product source of truth.
 - Japanese README is available at `README.ja.md`.
 - Current demo video is `media/demo-video-v050-overview.mp4`.
@@ -26,7 +26,7 @@ npm run japanese:verify
 node ops/verify-ai-live.mjs
 ```
 
-Latest verification result: all passed on 2026-05-18 JST.
+Latest verification result: all passed on 2026-05-19 JST.
 
 ## Submission Assets
 
@@ -65,8 +65,7 @@ Before making the GitHub repository public or attaching it to Devpost:
 - Confirm screenshots do not expose private keys, billing screens, or unrelated accounts.
 - Re-run the verification commands after any final UI changes.
 
-## Do Not Do Yet
+## Human Submit Boundary
 
-- Do not submit Devpost.
-- Do not publicize the repository until DD finishes manual verification.
 - Do not buy AI credits, enable auto reload, or change billing settings from this repo flow.
+- Devpost final submit should be done only after DD reviews the public repo, screenshots, and demo video.

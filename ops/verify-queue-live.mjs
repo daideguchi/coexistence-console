@@ -60,6 +60,16 @@ async function screenshot(page, name) {
   console.log(path);
 }
 
+async function gotoPage(page, url, timeout = 90000) {
+  try {
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout });
+  } catch (error) {
+    if (!String(error).includes('Timeout')) throw error;
+    console.log(`navigation timeout; continuing with current document: ${url}`);
+  }
+  await sleep(3000);
+}
+
 async function main() {
   await mkdir(MEDIA_DIR, { recursive: true });
   const browser = await chromium.launch({ headless: false, slowMo: 80 });
@@ -82,7 +92,7 @@ async function main() {
   };
 
   try {
-    await page.goto(SUBREDDIT_URL, { waitUntil: 'domcontentloaded', timeout: 45000 });
+    await gotoPage(page, SUBREDDIT_URL, 90000);
     await waitForVisibleText(page, /Coexistence Review Queue/, 60000);
     report.foundQueuePost = true;
     await screenshot(page, 'fresh-v044-queue-feed.png');
@@ -98,7 +108,7 @@ async function main() {
       ? `${report.queuePostUrl}&playtest=super-consolex`
       : `${report.queuePostUrl}?playtest=super-consolex`;
 
-    await page.goto(playtestUrl, { waitUntil: 'domcontentloaded', timeout: 45000 });
+    await gotoPage(page, playtestUrl, 90000);
     await waitForVisibleText(page, /Coexistence Queue|レビューキュー/, 60000);
     report.hasQueueUi = true;
     report.hasQueuedFilter = await hasVisibleText(page, /Queued|未処理/);

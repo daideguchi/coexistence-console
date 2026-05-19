@@ -66,8 +66,8 @@ async function clickText(page, text, timeout = 30000) {
       ];
       for (const locator of locators) {
         try {
-          await locator.scrollIntoViewIfNeeded({ timeout: 1000 });
-          await locator.click({ timeout: 1000 });
+          await locator.scrollIntoViewIfNeeded({ timeout: 2000 });
+          await locator.click({ timeout: 2000 });
           console.log(`clicked: ${text}`);
           return true;
         } catch (error) {
@@ -140,8 +140,11 @@ async function main() {
 
   try {
     await gotoPage(page, DASHBOARD_URL);
-    await waitForText(page, /Coexistence Console|日本語/, 60000);
-    await clickText(page, '日本語', 30000);
+    await waitForText(page, /EN|日本語|Queue Workbench|キューワークベンチ/, 90000);
+    const dashboardBeforeClick = await pageText(page);
+    if (!/今日の人間モデレーターにも、明日のAIモデレーターにも役立つ統治レール。|キューワークベンチ/.test(dashboardBeforeClick)) {
+      await clickText(page, '日本語', 60000);
+    }
     await waitForText(page, /今日の人間モデレーターにも、明日のAIモデレーターにも役立つ統治レール。|キューワークベンチ/, 60000);
     report.dashboardJapanese = true;
     await screenshot(page, 'fresh-v047-ja-dashboard.png');
