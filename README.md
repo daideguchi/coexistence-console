@@ -13,6 +13,7 @@ It is built for the Reddit Mod Tools and Migrated Apps Hackathon, Best New Mod T
 Start here if you are judging or manually testing the project.
 
 - Public review repository: https://github.com/daideguchi/coexistence-console
+- Devpost project page: https://devpost.com/software/coexistence-console
 - Demo video: [media/demo-video-v050-overview.mp4](media/demo-video-v050-overview.mp4)
 - Japanese Dashboard screenshot: [media/fresh-v047-ja-dashboard.png](media/fresh-v047-ja-dashboard.png)
 - Policy Editor Workflow Board: [media/fresh-v047-ja-policy.png](media/fresh-v047-ja-policy.png)
@@ -412,5 +413,7 @@ Longer version:
 Reddit is valuable because humans can talk freely, argue, ask for help, share expertise, and build community culture. AI is now entering that same space. Some users will disclose AI assistance, some will not, and many posts will be ambiguous.
 
 The moderator problem is not proving whether each post was written by AI. That is brittle and unfair. The real problem is deciding what the community allows, when disclosure matters, which posts need labels or review, how moderators explain decisions consistently, and how useful AI-assisted contributions can coexist with human community culture.
+
+This project was also built through a human-AI workflow: a human setting intent, AI helping with implementation and verification, and the human checking what should actually ship. That is the same shape moderators will face more often as AI-assisted participation becomes normal: not replacing judgment, but making shared work visible, reviewable, and accountable.
 
 Coexistence Console treats AI participation as a visibility and governance challenge, not an accusation workflow.
