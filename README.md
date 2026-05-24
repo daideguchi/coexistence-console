@@ -94,6 +94,20 @@ AI moderation is not just a detection problem. It is a governance problem.
 
 Coexistence Console helps subreddit moderators turn AI-content uncertainty into clear community policy, explainable review workflows, transparent moderator actions, and ActionLog-based analytics while keeping humans in control.
 
+## Practical Moderator Story
+
+Imagine a support subreddit receives a helpful-looking answer with no disclosure. It may be human-written. It may be AI-assisted. It may simply be copied from a generic assistant. A moderator should not have to pretend they can prove authorship before acting.
+
+Coexistence Console turns that one confusing post into a clear workflow:
+
+1. The queue flags observable policy reasons such as `missing disclosure`, `low-context post`, or `needs moderator review`.
+2. AI Triage suggests a safe label candidate, two visible reasons, and a next moderator action without saying "AI detected."
+3. The moderator chooses one action: ask for disclosure, apply a label, approve, remove with reason, or mark reviewed.
+4. ActionLog records what happened, why it happened, and how much one-click work was saved.
+5. Analytics shows the community-level pattern so moderators can tune policy instead of arguing post by post.
+
+The point is practical: one moderator can handle an ambiguous AI-era post faster, more consistently, and with a clearer explanation to the user.
+
 ## What It Is Not
 
 Coexistence Console is not an AI detector.
@@ -392,11 +406,12 @@ Uploaded: 5/18/2026, 8:48:21 PM
 
 Recommended 60-second demo:
 
-1. Open the Japanese Dashboard. The hero immediately shows whether a post is waiting for review, while KPIs and Coexistence Visibility show that this is about governance, not detection.
-2. Use Queue Workbench to ask for disclosure, label, or preview translation. This demonstrates real moderator action and real ActionLog writes.
-3. Open Review Queue. Show explainable reasons such as missing disclosure or low context, then click AI Triage Assistant to suggest a safe label and next action without claiming AI detection.
-4. Open Policy Editor. Switch policy mode, choose a community type, tune Workflow Board rules, and run Generate Drafts.
-5. Open Analytics. Show that approvals, labels, disclosure requests, removals, reviewed posts, and estimated time saved come from ActionLog.
+1. Open the Japanese Dashboard and say the job plainly: "This subreddit has one ambiguous AI-era post waiting for review."
+2. Use Queue Workbench to show the observable reason. The app says `missing disclosure` or `needs moderator review`, not "AI detected."
+3. Open Review Queue and run AI Triage Assistant. Show the suggested label, two visible reasons, and next action.
+4. Let the moderator choose one real action: ask disclosure, apply label, approve, mark reviewed, or remove with reason.
+5. Open Analytics. Show that the work is counted from ActionLog, and explain the formula: one-click moderator actions x 30 seconds.
+6. Open Policy Editor only after the workflow is clear. Show that Gemini drafts policy copy while enforcement stays deterministic and moderator-controlled.
 
 ## Submission Language
 

@@ -45,6 +45,26 @@ Use the following files first:
 - `media/demo-preview-v050.gif`
 - `media/demo-video-v050-overview.mp4`
 
+## Judge Demo Narrative
+
+Keep the demo practical and concrete. The winning story is not "AI detects AI." The winning story is:
+
+```text
+A moderator sees one useful but ambiguous post with no AI disclosure.
+Coexistence Console turns uncertainty into a safe workflow:
+observable queue reason -> AI triage suggestion -> human action -> ActionLog -> Analytics.
+```
+
+Recommended 60-second spoken flow:
+
+1. "This support community has one ambiguous AI-era post waiting for review."
+2. Show the Dashboard / Queue Workbench reason: `missing disclosure`, `low-context post`, or `needs moderator review`.
+3. Say: "The app does not accuse the user. It never says AI detected."
+4. Run AI Triage Assistant and show the suggested label, two observable reasons, and next action.
+5. Click one moderator action and state that it writes to ActionLog.
+6. Open Analytics and state the time-saved formula: `one-click moderator actions x 30 seconds`.
+7. End with Policy Editor: "Gemini drafts policy language, but moderators save and enforce the rules."
+
 ## Human QA Before Devpost Submit
 
 - Open all four playtest URLs from `README.md`.
