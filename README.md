@@ -382,7 +382,16 @@ Fireworks is not used as the live Devvit AI provider.
 
 ## Latest Verification
 
-Current README-pass verification:
+Current core workflow re-audit, 2026-06-05 JST:
+
+```bash
+npm run build                                  # passed
+npm run dashboard:verify                       # passed; Dashboard and Queue Workbench render live
+npm run queue:verify                           # passed; real Review Queue post and controls render live
+npm run japanese:verify                        # passed; Dashboard / Queue / Policy / Analytics all Japanese
+```
+
+AI-provider verification is tracked separately because live AI calls depend on the configured provider quota and availability. The latest full AI verification previously passed with Gemini:
 
 ```bash
 npm run build                                  # passed

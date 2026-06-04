@@ -5,7 +5,7 @@
  */
 
 import { chromium } from 'playwright';
-import { mkdir, readFile, writeFile } from 'fs/promises';
+import { access, mkdir, readFile, writeFile } from 'fs/promises';
 
 const MEDIA_DIR = '/Users/dd/000_AI組織/__hackason/coexistence-console/media';
 const STORAGE_STATE = '/Users/dd/000_AI組織/ops/reddit_storage_state.json';
@@ -13,9 +13,21 @@ const SUBREDDIT_URL = 'https://www.reddit.com/r/super_consolex_dev/?playtest=sup
 const DASHBOARD_URL = 'https://www.reddit.com/r/super_consolex_dev/comments/1td71v6/coexistence_console_dashboard/?playtest=super-consolex';
 const POLICY_URL = 'https://www.reddit.com/r/super_consolex_dev/comments/1td74wd/coexistence_policy_editor/?playtest=super-consolex';
 const ANALYTICS_URL = 'https://www.reddit.com/r/super_consolex_dev/comments/1td754t/community_analytics_dashboard/?playtest=super-consolex';
+const LOCAL_CHROME_PATH = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 
 async function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function launchBrowser() {
+  const launchOptions = { headless: false, slowMo: 80 };
+  try {
+    await access(LOCAL_CHROME_PATH);
+    launchOptions.executablePath = LOCAL_CHROME_PATH;
+  } catch {
+    // Fall back to Playwright's bundled browser when it is installed.
+  }
+  return chromium.launch(launchOptions);
 }
 
 function surfaces(page) {
@@ -96,6 +108,34 @@ async function gotoPage(page, url) {
   await sleep(3000);
 }
 
+async function gotoAndWaitForText(page, url, pattern, timeout = 60000, attempts = 3) {
+  let lastError;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    await gotoPage(page, url);
+    try {
+      return await waitForText(page, pattern, timeout);
+    } catch (error) {
+      lastError = error;
+      console.log(`attempt ${attempt}/${attempts} did not find ${pattern}; reloading Devvit surface`);
+    }
+  }
+  throw lastError;
+}
+
+async function waitForTextWithReload(page, url, pattern, timeout = 60000, attempts = 2) {
+  let lastError;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      return await waitForText(page, pattern, timeout);
+    } catch (error) {
+      lastError = error;
+      console.log(`attempt ${attempt}/${attempts} did not find ${pattern}; reopening ${url}`);
+      await gotoPage(page, url);
+    }
+  }
+  throw lastError;
+}
+
 async function newestQueueUrl(page) {
   try {
     const previous = JSON.parse(await readFile(`${MEDIA_DIR}/fresh-v044-queue-report.json`, 'utf8'));
@@ -122,7 +162,7 @@ async function newestQueueUrl(page) {
 
 async function main() {
   await mkdir(MEDIA_DIR, { recursive: true });
-  const browser = await chromium.launch({ headless: false, slowMo: 80 });
+  const browser = await launchBrowser();
   const context = await browser.newContext({
     storageState: STORAGE_STATE,
     viewport: { width: 1440, height: 900 },
@@ -139,29 +179,25 @@ async function main() {
   };
 
   try {
-    await gotoPage(page, DASHBOARD_URL);
-    await waitForText(page, /EN|日本語|Queue Workbench|キューワークベンチ/, 90000);
+    await gotoAndWaitForText(page, DASHBOARD_URL, /EN|日本語|Queue Workbench|キューワークベンチ/, 90000);
     const dashboardBeforeClick = await pageText(page);
     if (!/今日の人間モデレーターにも、明日のAIモデレーターにも役立つ統治レール。|キューワークベンチ/.test(dashboardBeforeClick)) {
       await clickText(page, '日本語', 60000);
     }
-    await waitForText(page, /今日の人間モデレーターにも、明日のAIモデレーターにも役立つ統治レール。|キューワークベンチ/, 60000);
+    await waitForTextWithReload(page, DASHBOARD_URL, /今日の人間モデレーターにも、明日のAIモデレーターにも役立つ統治レール。|キューワークベンチ/, 60000);
     report.dashboardJapanese = true;
     await screenshot(page, 'fresh-v047-ja-dashboard.png');
 
     report.queueUrl = await newestQueueUrl(page);
-    await gotoPage(page, report.queueUrl);
-    await waitForText(page, /レビューキュー|投稿を開く|投稿プレビューを翻訳/, 60000);
+    await gotoAndWaitForText(page, report.queueUrl, /レビューキュー|投稿を開く|投稿プレビューを翻訳/, 60000);
     report.queueJapanese = true;
     await screenshot(page, 'fresh-v047-ja-queue.png');
 
-    await gotoPage(page, POLICY_URL);
-    await waitForText(page, /ポリシーエディタ|ワークフロー概要|ワークフロー設定|スタートモードを選ぶ|ポリシーを保存/, 60000);
+    await gotoAndWaitForText(page, POLICY_URL, /ポリシーエディタ|ワークフロー概要|ワークフロー設定|スタートモードを選ぶ|ポリシーを保存/, 60000);
     report.policyJapanese = true;
     await screenshot(page, 'fresh-v047-ja-policy.png');
 
-    await gotoPage(page, ANALYTICS_URL);
-    await waitForText(page, /コミュニティ分析|共存の可視化|ActionLog/, 60000);
+    await gotoAndWaitForText(page, ANALYTICS_URL, /コミュニティ分析|共存の可視化|ActionLog/, 60000);
     report.analyticsJapanese = true;
     await screenshot(page, 'fresh-v047-ja-analytics.png');
 

@@ -170,7 +170,9 @@ npm run japanese:verify
 node ops/verify-ai-live.mjs
 ```
 
-最新確認では、build、Dashboard、Queue、日本語UI、Gemini AI機能（Policy Copilot / AIトリアージ / AI Pulse）の検証が通っています。
+2026-06-05 JST の本体再確認では、`npm run build`、`npm run dashboard:verify`、`npm run queue:verify`、`npm run japanese:verify` が通っています。Dashboard、Review Queue、日本語UI、Policy Editor、Analytics はライブ画面で確認済みです。
+
+AI機能の確認は、設定しているAIプロバイダの疎通状態に依存するため、本体検証とは分けて扱います。以前のフル確認では、Gemini AI機能（Policy Copilot / AIトリアージ / AI Pulse）の検証が通っています。
 
 ## デモギャラリー
 

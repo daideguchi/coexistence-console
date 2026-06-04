@@ -5,14 +5,26 @@
  */
 
 import { chromium } from 'playwright';
-import { mkdir, writeFile } from 'fs/promises';
+import { access, mkdir, writeFile } from 'fs/promises';
 
 const MEDIA_DIR = '/Users/dd/000_AI組織/__hackason/coexistence-console/media';
 const STORAGE_STATE = '/Users/dd/000_AI組織/ops/reddit_storage_state.json';
 const DASHBOARD_URL = 'https://www.reddit.com/r/super_consolex_dev/comments/1td71v6/coexistence_console_dashboard/?playtest=super-consolex';
+const LOCAL_CHROME_PATH = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 
 async function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function launchBrowser() {
+  const launchOptions = { headless: false, slowMo: 80 };
+  try {
+    await access(LOCAL_CHROME_PATH);
+    launchOptions.executablePath = LOCAL_CHROME_PATH;
+  } catch {
+    // Fall back to Playwright's bundled browser when it is installed.
+  }
+  return chromium.launch(launchOptions);
 }
 
 function surfaces(page) {
@@ -98,7 +110,7 @@ async function screenshot(page, name) {
 
 async function main() {
   await mkdir(MEDIA_DIR, { recursive: true });
-  const browser = await chromium.launch({ headless: false, slowMo: 80 });
+  const browser = await launchBrowser();
   const context = await browser.newContext({
     storageState: STORAGE_STATE,
     viewport: { width: 1440, height: 900 },
